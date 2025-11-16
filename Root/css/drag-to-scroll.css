@@ -1,0 +1,8 @@
+.horizontal-scroller {
+    cursor: grab;
+    user-select: none; /* Prevent text selection while dragging */
+}
+
+.horizontal-scroller.active-drag {
+    cursor: grabbing;
+}
