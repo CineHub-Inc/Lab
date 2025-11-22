@@ -1,0 +1,330 @@
+:root {
+    --swipe-bg: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+    --color-like: #4ade80;
+    --color-pass: #f87171;
+    --color-skip: #60a5fa;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-highlight: rgba(255, 255, 255, 0.15);
+    --shadow-deep: 0 30px 60px -12px rgba(0, 0, 0, 0.8);
+}
+
+.source-swipe-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--swipe-bg);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Distribute vertically */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.4s;
+    padding: 2rem 1rem; /* Safe padding */
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.source-swipe-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- Header --- */
+.source-swipe-header {
+    text-align: center;
+    z-index: 2;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 1rem; /* Small offset from top */
+}
+
+.source-swipe-header h2 {
+    font-family: 'Poppins', sans-serif;
+    /* Dynamic font size: min 2rem, preferred 5vh, max 3.5rem */
+    font-size: clamp(2rem, 5vh, 3.5rem); 
+    font-weight: 900;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    margin: 0;
+    
+    /* Gradient Text */
+    background: linear-gradient(to bottom right, #ffffff 30%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 25px rgba(255,255,255,0.15));
+}
+
+.source-swipe-header p {
+    font-size: clamp(0.75rem, 1.5vh, 0.85rem);
+    color: #64748b;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* --- Stack Container --- */
+.source-swipe-container {
+    position: relative;
+    z-index: 1;
+    
+    /* Primary Sizing Logic: height driven */
+    height: 55vh; 
+    width: calc(55vh * 0.667); /* Maintain 2:3 aspect ratio based on height */
+    
+    /* Constraints */
+    max-height: 600px;
+    max-width: 360px; /* Don't get wider than a standard phone width */
+    
+    /* Fallback/Safety for very narrow screens */
+    min-width: 280px; 
+    
+    perspective: 1500px;
+    margin: 1rem 0;
+    flex-shrink: 0; /* Prevent squashing */
+}
+
+/* If screen is very narrow (width constrained), adjust height to maintain ratio */
+@media (max-width: 400px) {
+    .source-swipe-container {
+        width: 85vw;
+        height: calc(85vw * 1.5);
+        max-height: 55vh; /* Still respect vertical limits */
+    }
+}
+
+.movie-swipe-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0f172a;
+    border-radius: 24px;
+    box-shadow: 
+        var(--shadow-deep),
+        0 0 0 1px var(--glass-border) inset;
+    overflow: hidden;
+    transform-origin: 50% 100%; 
+    cursor: grab;
+    user-select: none;
+    will-change: transform, opacity;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.movie-swipe-card:active {
+    cursor: grabbing;
+}
+
+.movie-swipe-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.movie-swipe-card:first-child:hover .movie-swipe-image {
+    transform: scale(1.03);
+}
+
+/* --- Info Section --- */
+.movie-swipe-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 6rem 1.5rem 2rem; /* Adjustable padding */
+    
+    background: linear-gradient(
+        to top, 
+        rgba(2, 6, 23, 0.98) 0%, 
+        rgba(2, 6, 23, 0.8) 40%, 
+        rgba(2, 6, 23, 0) 100%
+    );
+    
+    color: #fff;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.movie-swipe-title {
+    font-size: clamp(1.25rem, 3vh, 2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.movie-swipe-meta {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+}
+
+.movie-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+/* --- Stamps --- */
+.card-stamp {
+    position: absolute;
+    top: 10%;
+    padding: 0.25rem 1rem;
+    border: 4px solid;
+    border-radius: 12px;
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(4px);
+}
+
+.card-stamp.nope {
+    right: 10%;
+    color: var(--color-pass);
+    border-color: var(--color-pass);
+    transform: rotate(15deg);
+}
+
+.card-stamp.like {
+    left: 10%;
+    color: var(--color-like);
+    border-color: var(--color-like);
+    transform: rotate(-15deg);
+}
+
+.card-stamp.skip {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    color: var(--color-skip);
+    border-color: var(--color-skip);
+    background: rgba(15, 23, 42, 0.9);
+}
+
+/* --- Controls --- */
+.source-swipe-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.game-btn {
+    width: clamp(50px, 8vh, 70px);
+    height: clamp(50px, 8vh, 70px);
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    font-size: clamp(1.2rem, 3vh, 1.75rem);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(10px);
+    color: #94a3b8;
+}
+
+.game-btn:hover {
+    transform: translateY(-5px) scale(1.1);
+    background: rgba(30, 41, 59, 0.8);
+    border-color: var(--glass-highlight);
+    color: #fff;
+}
+
+.game-btn.pass:hover { color: var(--color-pass); border-color: var(--color-pass); box-shadow: 0 0 20px rgba(248, 113, 113, 0.2); }
+.game-btn.like:hover { color: var(--color-like); border-color: var(--color-like); box-shadow: 0 0 20px rgba(74, 222, 128, 0.2); }
+
+.game-btn.skip {
+    width: clamp(40px, 6vh, 55px);
+    height: clamp(40px, 6vh, 55px);
+    font-size: clamp(1rem, 2.5vh, 1.2rem);
+}
+.game-btn.skip:hover { color: var(--color-skip); border-color: var(--color-skip); box-shadow: 0 0 20px rgba(96, 165, 250, 0.2); }
+
+/* --- Close Button --- */
+.source-swipe-close-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.source-swipe-close-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+    transform: rotate(90deg);
+}
+
+.loader-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--focus-color);
+    font-size: 2rem;
+    z-index: -1;
+}
+
+/* --- Landscape Mode / Short Screens --- */
+@media (max-height: 700px) {
+    .source-swipe-container {
+        height: 50vh; /* Reduce height usage further */
+        width: calc(50vh * 0.667);
+    }
+    
+    .source-swipe-overlay {
+        padding: 0.5rem;
+    }
+    
+    .source-swipe-header h2 {
+        font-size: 2rem;
+    }
+}
